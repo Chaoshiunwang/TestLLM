@@ -1,0 +1,12 @@
+{
+  "label": "Copper 2024 original surface-form worksheet",
+  "period": [100, 113],
+  "token_occurrences": 45489,
+  "unique_surface_types": 6658,
+  "singletons": 2995,
+  "singleton_type_share": 0.4498,
+  "twice": 1213,
+  "at_least_three": 2450,
+  "at_least_three_token_coverage": 0.8808,
+  "provenance_note": "Exact archived worksheet counts verified during the 2026 rebuild. The private worksheet identifier is intentionally not published; current public artifacts are regenerated from CEEC source PDFs."
+}
