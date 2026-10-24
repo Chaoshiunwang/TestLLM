@@ -27,6 +27,9 @@ jobs:
           mkdir -p _site/data
           cp index.html styles.css app.js _site/
           cp public/data/gsat-vocabulary-frequency-root.csv _site/data/
+          cp public/data/root-analysis-qa.json _site/data/
+          cp public/data/root-manual-review.csv _site/data/
+          cp public/data/root-discarded-candidates.csv _site/data/
       - uses: actions/configure-pages@v5
         with:
           enablement: true
