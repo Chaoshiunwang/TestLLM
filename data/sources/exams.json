@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-02T03:36:54+00:00",
+  "year_range": [
+    100,
+    115
+  ],
+  "exam_list_url": "https://www.ceec.edu.tw/xmfile?page=1&xsmsid=0J052424829869345634",
+  "source_policy": {
+    "owner": "College Entrance Examination Center (CEEC)",
+    "use": "Noncommercial educational analysis; source attribution required.",
+    "repository_rule": "Exam PDFs and reconstructed passages are not committed."
+  },
+  "extraction": {
+    "pdf_text_tool": "pdftotext -layout",
+    "raw_pdf_cache_committed": false
+  },
+  "exam_token_snapshot": {
+    "description": "Order-free, passage-free surface token counts and casing totals.",
+    "sha256": "a27a464cb4f0eaf29e2f8153b0259feede0d98f4a29a59b80875061ba61cfec8",
+    "local_path": "data/sources/exam-surface-counts.json",
+    "years": 16
+  },
+  "exams": [
+    {
+      "year": 100,
+      "source_url": "https://www.ceec.edu.tw/files/file_pool/1/0j076570267209194600/02-100%e5%ad%b8%e6%b8%ac%e8%8b%b1%e6%96%87%e8%a9%a6%e5%8d%b7%e5%ae%9a%e7%a8%bf.pdf",
+      "sha256": "179f710f6d2ea1052b034f246000228293be3740aece98b1d25783929fc8ad83",
+      "bytes": 3256915,
+      "pages": 8,
+      "local_cache": "tmp/pdfs/gsat-english-100.pdf"
+    },
+    {
+      "year": 101,
+      "source_url": "https://www.ceec.edu.tw/files/file_pool/1/0j076570671923496609/02-101%e5%ad%b8%e6%b8%ac%e8%8b%b1%e6%96%87%e8%a9%a6%e5%8d%b7%e5%ae%9a%e7%a8%bf.pdf",
+      "sha256": "d9942eb961eb46e8ca8ee34d3c476debf7d4fd0a8be714e837f9433f48c31fe1",
+      "bytes": 162074,
+      "pages": 8,
+      "local_cache": "tmp/pdfs/gsat-english-101.pdf"
+    },
+    {
+      "year": 102,
+      "source_url": "https://www.ceec.edu.tw/files/file_pool/1/0j076571313825971626/02-102%e5%ad%b8%e6%b8%ac%e8%8b%b1%e6%96%87%28%e5%ae%9a%e7%a8%bf%29%20.pdf",
+      "sha256": "1c39e083a6b888670f9204c6fae5124fc2f8c0d1bfebcc784d61866859fc89e2",
+      "bytes": 223482,
+      "pages": 8,
+      "local_cache": "tmp/pdfs/gsat-english-102.pdf"
+    },
+    {
+      "year": 103,
+      "source_url": "https://www.ceec.edu.tw/files/file_pool/1/0j076572147183041652/02-103%e5%ad%b8%e6%b8%ac%e8%8b%b1%e6%96%87-%e5%ae%9a%e7%a8%bf.pdf",
+      "sha256": "cf13c981ad8ef34bcebe59277899665b1642e97c35d79779fa69f615c91b070e",
+      "bytes": 224698,
+      "pages": 8,
+      "local_cache": "tmp/pdfs/gsat-english-103.pdf"
+    },
+    {
+      "year": 104,
+      "source_url": "https://www.ceec.edu.tw/files/file_pool/1/0j076572827714606282/02-104%e5%ad%b8%e6%b8%ac%e8%8b%b1%e6%96%87%e5%ae%9a%e7%a8%bf.pdf",
+      "sha256": "f43e4a2c26ab1f6600f542bbb3ad0eb73e64ed28de005a1676190e955429b910",
+      "bytes": 376336,
+      "pages": 8,
+      "local_cache": "tmp/pdfs/gsat-english-104.pdf"
+    },
+    {
+      "year": 105,
+      "source_url": "https://www.ceec.edu.tw/files/file_pool/1/0j076573375790393795/02-105%e5%ad%b8%e6%b8%ac%e8%8b%b1%e6%96%87%e7%a7%91_%e5%ae%9a%e7%a8%bf.pdf",
+      "sha256": "56ad827c96e9f639c044f14c20170f431b1f29d3c49156b33ecfca880415b0a2",
+      "bytes": 233827,
+      "pages": 8,
+      "local_cache": "tmp/pdfs/gsat-english-105.pdf"
+    },
+    {
+      "year": 106,
+      "source_url": "https://www.ceec.edu.tw/files/file_pool/1/0j076574214786979208/02-106%e5%ad%b8%e6%b8%ac%e8%8b%b1%e6%96%87%e8%a9%a6%e5%8d%b7%e5%ae%9a%e7%a8%bf.pdf",
+      "sha256": "1ef52384175fddddfa0d0ad835db1700502d4c898546d25ce1f6b5f3fcf26bab",
+      "bytes": 427259,
+      "pages": 8,
+      "local_cache": "tmp/pdfs/gsat-english-106.pdf"
+    },
+    {
+      "year": 107,
+      "source_url": "https://www.ceec.edu.tw/files/file_pool/1/0j076574893317534748/02-107%e5%ad%b8%e6%b8%ac%e8%8b%b1%e6%96%87%e8%a9%a6%e5%8d%b7%e5%ae%9a%e7%a8%bf.pdf",
+      "sha256": "5c1b4bede296b355bbe52a859fbfc3f2a0bb51c8ac56ea6ffa51852a95153735",
+      "bytes": 396847,
+      "pages": 8,
+      "local_cache": "tmp/pdfs/gsat-english-107.pdf"
+    },
+    {
+      "year": 108,
+      "source_url": "https://www.ceec.edu.tw/files/file_pool/1/0j196548669826315609/01-108%e5%ad%b8%e6%b8%ac%e8%8b%b1%e6%96%87%e8%a9%a6%e5%8d%b7%e5%ae%9a%e7%a8%bf.pdf",
+      "sha256": "b3c844ba252b4c76519579226499ce370c58c47e6771ba6ec35564c3705a0d82",
+      "bytes": 566554,
+      "pages": 8,
+      "local_cache": "tmp/pdfs/gsat-english-108.pdf"
+    },
+    {
+      "year": 109,
+      "source_url": "https://www.ceec.edu.tw/files/file_pool/1/0k050359836694452838/02-109%e5%ad%b8%e6%b8%ac%e8%8b%b1%e6%96%87%e8%a9%a6%e5%8d%b7-%e5%ae%9a%e7%a8%bf.pdf",
+      "sha256": "515aae9676a3a603749b012885acdeceeb471f161281838b7c72047308a9c354",
+      "bytes": 505860,
+      "pages": 8,
+      "local_cache": "tmp/pdfs/gsat-english-109.pdf"
+    },
+    {
+      "year": 110,
+      "source_url": "https://www.ceec.edu.tw/files/file_pool/1/0l069608312283063557/110%e5%ad%b8%e6%b8%ac%e8%8b%b1%e6%96%87%e8%a9%a6%e5%8d%b7%20.pdf",
+      "sha256": "fe2e9350c9c03d23fd8eb24e6644c7f6f49dd57dae9549b12c12d06e28f86278",
+      "bytes": 566163,
+      "pages": 8,
+      "local_cache": "tmp/pdfs/gsat-english-110.pdf"
+    },
+    {
+      "year": 111,
+      "source_url": "https://www.ceec.edu.tw/files/file_pool/1/0m053357638065462325/02-111%e5%ad%b8%e6%b8%ac%e8%8b%b1%e6%96%87%e8%a9%a6%e5%8d%b7.pdf",
+      "sha256": "5877adb44710601bd1e9580e063d00f702acd7229a0fa97425290fe90044c358",
+      "bytes": 984200,
+      "pages": 12,
+      "local_cache": "tmp/pdfs/gsat-english-111.pdf"
+    },
+    {
+      "year": 112,
+      "source_url": "https://www.ceec.edu.tw/files/file_pool/1/0n045359274947649605/02-112%e5%ad%b8%e6%b8%ac%e8%8b%b1%e6%96%87%e8%a9%a6%e5%8d%b7.pdf",
+      "sha256": "79f8f0a5822b9fbdc424cccbf88fdff124c80b9cf0bd8a56913901cd1bb0f741",
+      "bytes": 407346,
+      "pages": 12,
+      "local_cache": "tmp/pdfs/gsat-english-112.pdf"
+    },
+    {
+      "year": 113,
+      "source_url": "https://www.ceec.edu.tw/files/file_pool/1/0o051427482769341323/02-113%e5%ad%b8%e6%b8%ac%e8%8b%b1%e6%96%87%e7%a7%91%e5%ae%9a%e7%a8%bf.pdf",
+      "sha256": "09d35c2ed8561e0845dbbe305e12f5342b27f209fb44d801ff7f9f1f9e519ecf",
+      "bytes": 699425,
+      "pages": 12,
+      "local_cache": "tmp/pdfs/gsat-english-113.pdf"
+    },
+    {
+      "year": 114,
+      "source_url": "https://www.ceec.edu.tw/files/file_pool/1/0p056425554473267580/02-114%e5%ad%b8%e6%b8%ac%e8%8b%b1%e6%96%87%e8%a9%a6%e9%a1%8c.pdf",
+      "sha256": "51c8d9f7c2715adf74cae808bde4906cfadee19d0ec379df3b33881c35960a78",
+      "bytes": 594448,
+      "pages": 12,
+      "local_cache": "tmp/pdfs/gsat-english-114.pdf"
+    },
+    {
+      "year": 115,
+      "source_url": "https://www.ceec.edu.tw/files/file_pool/1/0q054532302653501476/02-115%e5%ad%b8%e6%b8%ac%e8%8b%b1%e6%96%87%e8%a9%a6%e5%8d%b7.pdf",
+      "sha256": "e5a644f0133482a86f0befb3dfd9aaa2161be2685a00620950581db7ad6bc3f2",
+      "bytes": 1286541,
+      "pages": 12,
+      "local_cache": "tmp/pdfs/gsat-english-115.pdf"
+    }
+  ],
+  "vocabulary": {
+    "official": {
+      "description": "CEEC senior-high English reference vocabulary list (111+).",
+      "source_url": "https://www.ceec.edu.tw/files/file_pool/1/0k213571061045122620/%E9%AB%98%E4%B8%AD%E8%8B%B1%E6%96%87%E5%8F%83%E8%80%83%E8%A9%9E%E5%BD%99%E8%A1%A8%28111%E5%AD%B8%E5%B9%B4%E5%BA%A6%E8%B5%B7%E9%81%A9%E7%94%A8%29.pdf",
+      "sha256": "27b010f8230b2e8763653ddb35783fe9e0140c143b0040f13839046aebb2a126",
+      "bytes": 1113520,
+      "pages": 116,
+      "local_cache": "tmp/pdfs/ceec-vocabulary-111.pdf",
+      "entry_snapshot": {
+        "sha256": "6fd40e842016aff7ae7ac6929c63830d31d1595bf1186d22f15207e69bbfac2c",
+        "rows": 6012,
+        "local_path": "data/sources/ceec-entries-111.csv"
+      }
+    },
+    "transcription": {
+      "description": "Copper's public spreadsheet transcription of the CEEC 111+ reference vocabulary list, with Google-translated zh-TW glosses.",
+      "share_url": "https://docs.google.com/spreadsheets/d/1ket1Aq7uyW0E6a3w648LoWQY3r_u5c438mVqLInYbxw/edit?usp=sharing",
+      "export_url": "https://docs.google.com/spreadsheets/d/1ket1Aq7uyW0E6a3w648LoWQY3r_u5c438mVqLInYbxw/export?format=csv&gid=887767276",
+      "sha256": "6a92212e43c99db638053467cd97752b4b52d104999765a6b9a007fe3233fcf6",
+      "rows": 6009,
+      "local_path": "data/sources/copper-ceec-vocabulary-111.csv",
+      "translation_warning": "Machine translations are hints, not authoritative definitions."
+    }
+  }
+}
