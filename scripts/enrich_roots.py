@@ -12,6 +12,8 @@ DST = ROOT / "public" / "data" / "gsat-vocabulary-frequency-root.csv"
 QA_DST = ROOT / "public" / "data" / "root-analysis-qa.json"
 MANUAL_REVIEW_DST = ROOT / "public" / "data" / "root-manual-review.csv"
 DISCARD_DST = ROOT / "public" / "data" / "root-discarded-candidates.csv"
+UNMATCHED_REVIEW_DST = ROOT / "public" / "data" / "unmatched-review.csv"
+WORD_FAMILY_DST = ROOT / "public" / "data" / "unmatched-word-family.csv"
 
 CATEGORIES = ["感官動作","身體器官","手部動作","腳部動作","移動","展延或開合","各類動作","部分與全部"]
 
@@ -71,6 +73,112 @@ SUFFIXES = {
     "ize":"使…化","ise":"使…化","ify":"使…化","fy":"使…化",
     "ing":"現在分詞／動名詞","ed":"過去式／分詞","es":"複數／動詞變化","s":"複數／動詞變化","e":"常見拼字尾"
 }
+
+WORD_FAMILY_PREFIXES = [
+    "un","non","over","under","mis","out","up","down","fore","after","anti","auto","bi","co","counter",
+    "extra","hyper","inter","intra","macro","micro","mini","multi","post","pre","pro","pseudo","re","semi",
+    "sub","super","trans"
+]
+WORD_FAMILY_SUFFIXES = [
+    "ization","isation","ational","fulness","lessness","ability","ibility","ically","ologist","ology",
+    "ation","ition","ness","ment","ments","ship","hood","dom","ism","ist","ists","ity","ities",
+    "able","ible","ful","less","ous","ive","al","ial","ic","ical","ary","ory","ant","ent",
+    "ize","ise","ify","fy","en","ly","ward","wards","wise","er","ers","or","ors","est",
+    "ing","ed","es","s"
+]
+SPECIAL_HINTS = {"'","-","/","&","."}
+
+def normalize_inflection_candidates(word: str):
+    """Generate conservative possible lemmas for regular English inflection/derivation."""
+    out = []
+    w = word.lower()
+    rules = [
+        ("ies", lambda x: x[:-3] + "y"),
+        ("ied", lambda x: x[:-3] + "y"),
+        ("ves", lambda x: x[:-3] + "f"),
+        ("ing", lambda x: x[:-3]),
+        ("ing", lambda x: x[:-3] + "e"),
+        ("ed", lambda x: x[:-2]),
+        ("ed", lambda x: x[:-1]),
+        ("er", lambda x: x[:-2]),
+        ("est", lambda x: x[:-3]),
+        ("es", lambda x: x[:-2]),
+        ("s", lambda x: x[:-1]),
+    ]
+    for suf, fn in rules:
+        if len(w) > len(suf) + 2 and w.endswith(suf):
+            cand = fn(w)
+            if cand and cand != w:
+                out.append((cand, suf))
+    # doubled consonant: running -> run, bigger -> big
+    for suf in ("ing","ed","er","est"):
+        if w.endswith(suf):
+            stem = w[:-len(suf)]
+            if len(stem) >= 3 and stem[-1:] == stem[-2:-1]:
+                out.append((stem[:-1], suf))
+    return out
+
+def classify_unmatched_word(word: str, vocab_set: set[str]):
+    w = word.lower().strip()
+    if not w:
+        return "SPECIAL", "", "空白或無法判讀"
+
+    # obvious special forms
+    if any(ch.isdigit() for ch in w) or any(ch in w for ch in SPECIAL_HINTS):
+        return "SPECIAL", "", "含數字、連字號、縮寫符號或特殊標記"
+
+    # inflection first
+    for lemma, marker in normalize_inflection_candidates(w):
+        if lemma in vocab_set:
+            return "INFLECTION", lemma, f"可還原為資料庫詞形 {lemma}（-{marker}）"
+
+    # prefix + known base
+    for pre in sorted(WORD_FAMILY_PREFIXES, key=len, reverse=True):
+        if w.startswith(pre) and len(w) > len(pre) + 2:
+            base = w[len(pre):]
+            if base in vocab_set:
+                return "WORD_FAMILY", base, f"可拆為 {pre} + {base}"
+
+    # known base + suffix
+    for suf in sorted(WORD_FAMILY_SUFFIXES, key=len, reverse=True):
+        if w.endswith(suf) and len(w) > len(suf) + 2:
+            base = w[:-len(suf)]
+            probes = [base]
+            if base.endswith("i"):
+                probes.append(base[:-1] + "y")
+            probes += [base + "e"]
+            for probe in probes:
+                if probe in vocab_set:
+                    return "WORD_FAMILY", probe, f"可由基礎字 {probe} + -{suf} 形成"
+
+    # prefix + base + suffix, but require the middle base to already exist.
+    for pre in sorted(WORD_FAMILY_PREFIXES, key=len, reverse=True):
+        if not w.startswith(pre):
+            continue
+        rest = w[len(pre):]
+        for suf in sorted(WORD_FAMILY_SUFFIXES, key=len, reverse=True):
+            if rest.endswith(suf) and len(rest) > len(suf) + 2:
+                base = rest[:-len(suf)]
+                for probe in (base, base + "e", base[:-1] + "y" if base.endswith("i") else ""):
+                    if probe and probe in vocab_set:
+                        return "WORD_FAMILY", probe, f"可拆為 {pre} + {probe} + -{suf}"
+
+    # conservative compound: both halves must be known words and at least 3 letters.
+    candidates_comp = []
+    for i in range(3, len(w)-2):
+        left, right = w[:i], w[i:]
+        if left in vocab_set and right in vocab_set:
+            candidates_comp.append((left, right))
+    if len(candidates_comp) == 1:
+        left, right = candidates_comp[0]
+        return "COMPOUND", f"{left}+{right}", f"可唯一拆成已知字 {left} + {right}"
+
+    # Very short/common-looking forms are better treated as lexical bases than forced morphology.
+    if len(w) <= 5:
+        return "BASE_WORD", w, "短基礎詞；不強行套用 32 組字根"
+
+    return "BASE_WORD", w, "目前無可靠 32 字根或詞形證據；先視為直接記憶詞"
+
 
 def candidates(word: str):
     w = word.lower().strip()
@@ -161,7 +269,8 @@ def analyze(word: str, zh: str):
             "root_logic_zh":"未匹配到本版核心字根；不建議硬拆。",
             "memory_hint_zh":f"先直接連結核心義「{zh}」。",
             "analysis_confidence":"UNMATCHED","root_candidate":"","root_candidate_meaning_zh":"",
-            "review_disposition":"","review_reason":"","rejected_candidate":""
+            "review_disposition":"","review_reason":"","rejected_candidate":"",
+            "unmatched_class":"","unmatched_base":"","unmatched_reason":""
         }
 
     if len(hit) == 6:
@@ -187,7 +296,8 @@ def analyze(word: str, zh: str):
             "root_logic_zh":logic,
             "memory_hint_zh":f"把「{var}＝{meaning}」與「{zh}」建立連結。",
             "analysis_confidence":"HIGH","root_candidate":"","root_candidate_meaning_zh":"",
-            "review_disposition":"","review_reason":"","rejected_candidate":""
+            "review_disposition":"","review_reason":"","rejected_candidate":"",
+            "unmatched_class":"","unmatched_base":"","unmatched_reason":""
         }
 
     if confidence == "MANUAL_REVIEW":
@@ -199,7 +309,8 @@ def analyze(word: str, zh: str):
             "memory_hint_zh":f"暫以單字義「{zh}」為主，待人工查可靠字源後再決定是否升級。",
             "analysis_confidence":"MANUAL_REVIEW","root_candidate":f"{var} → {fam}",
             "root_candidate_meaning_zh":meaning,
-            "review_disposition":"MANUAL_REVIEW","review_reason":reason,"rejected_candidate":""
+            "review_disposition":"MANUAL_REVIEW","review_reason":reason,"rejected_candidate":"",
+            "unmatched_class":"","unmatched_base":"","unmatched_reason":""
         }
 
     return {
@@ -210,7 +321,8 @@ def analyze(word: str, zh: str):
         "memory_hint_zh":f"直接記憶核心義「{zh}」，不使用此候選字根。",
         "analysis_confidence":"DISCARD","root_candidate":"","root_candidate_meaning_zh":"",
         "review_disposition":"DISCARD","review_reason":reason,
-        "rejected_candidate":f"{var} → {fam}"
+        "rejected_candidate":f"{var} → {fam}",
+        "unmatched_class":"","unmatched_base":"","unmatched_reason":""
     }
 
 def main():
@@ -221,12 +333,21 @@ def main():
         "morphology_type","word_breakdown","prefix","prefix_meaning_zh","root_family","root_category",
         "root_variant","root_meaning_zh","suffix","suffix_meaning_zh","root_logic_zh","memory_hint_zh",
         "analysis_confidence","root_candidate","root_candidate_meaning_zh",
-        "review_disposition","review_reason","rejected_candidate"
+        "review_disposition","review_reason","rejected_candidate",
+        "unmatched_class","unmatched_base","unmatched_reason"
     ]
     fields = list(rows[0].keys()) + extra
 
     for row in rows:
         row.update(analyze(row["headword"], row.get("zh_hint", "")))
+
+    vocab_set = {r["headword"].lower().strip() for r in rows if r.get("headword")}
+    for row in rows:
+        if row["analysis_confidence"] == "UNMATCHED":
+            cls, base, reason = classify_unmatched_word(row["headword"], vocab_set)
+            row["unmatched_class"] = cls
+            row["unmatched_base"] = base
+            row["unmatched_reason"] = reason
 
     with DST.open("w", encoding="utf-8-sig", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fields)
@@ -255,19 +376,35 @@ def main():
         writer.writeheader()
         writer.writerows(discard_rows)
 
+    unmatched_rows = [r for r in rows if r["analysis_confidence"] == "UNMATCHED"]
+    unmatched_counts = Counter(r["unmatched_class"] for r in unmatched_rows)
+    unmatched_fields = ["headword","level","pos","zh_hint","count","years_seen","unmatched_class","unmatched_base","unmatched_reason"]
+    with UNMATCHED_REVIEW_DST.open("w", encoding="utf-8-sig", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=unmatched_fields, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(sorted(unmatched_rows, key=lambda r: (r["unmatched_class"], -int(r.get("count") or 0), r["headword"])))
+
+    family_rows = [r for r in unmatched_rows if r["unmatched_class"] in {"WORD_FAMILY","INFLECTION","COMPOUND"}]
+    with WORD_FAMILY_DST.open("w", encoding="utf-8-sig", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=unmatched_fields, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(family_rows)
+
     qa = {
         "records": len(rows),
         "confidence": dict(confidence),
         "classified_high": sum(categories.values()),
         "manual_review_candidates": len(manual_rows),
         "discarded_candidate_matches": len(discard_rows),
+        "unmatched_second_pass": dict(unmatched_counts),
+        "unmatched_morphology_recovered": len(family_rows),
         "categories": {c: categories.get(c, 0) for c in CATEGORIES},
         "families": dict(sorted(families.items())),
         "rules": {
             "high": "root >= 3 letters and all text before/after root is empty or a recognized affix",
             "manual_review": "candidate has boundary/length/affix evidence but is not strong enough for automatic classification",
             "discard": "short/internal substring match without enough morphology; rejected as likely coincidence",
-            "unmatched": "no root candidate"
+            "unmatched": "no 32-root candidate; second pass separates inflection, word-family, compound, base-word, and special forms"
         }
     }
     QA_DST.write_text(json.dumps(qa, ensure_ascii=False, indent=2), encoding="utf-8")
