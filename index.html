@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#123f37">
 <title>學測英文單字＋字根地圖</title>
-<link rel="stylesheet" href="./styles.css?v=0.4.0">
+<link rel="stylesheet" href="./styles.css?v=0.5.0">
 </head>
 <body>
 <header class="site-header">
@@ -24,7 +24,7 @@
 </section>
 <section id="study" class="study"><div class="shell">
   <div class="study-head"><div><p class="eyebrow coral">TODAY'S 20</p><h2>今天先處理 20 個。</h2><p>會的按「我會了」，不穩的留在「再複習」。也可以直接切換 8 類字根。</p></div><div class="progress"><strong data-progress-count>0</strong><span>已標記</span></div></div>
-  <div class="study-list-switcher" aria-label="學習清單"><button data-list-view="today" class="is-active">今日 20 <span data-today-count>20</span></button><button data-list-view="known">我會了 <span data-known-count>0</span></button><button data-list-view="review">再複習 <span data-review-count>0</span></button></div><div class="track-switcher"><button data-track="foundation">補地基</button><button data-track="target12" class="is-active">高報酬</button><button data-track="target15">長尾挑戰</button></div>
+  <div class="study-list-switcher" aria-label="學習清單"><button data-list-view="today" class="is-active">今日 20 <span data-today-count>20</span></button><button data-list-view="known">我會了 <span data-known-count>0</span></button><button data-list-view="review">再複習 <span data-review-count>0</span></button></div><div class="exam-mode-wrap"><span class="picker-label">顯示模式</span><div class="exam-mode-switcher" role="group" aria-label="顯示模式"><button data-exam-mode="normal" class="is-active">一般</button><button data-exam-mode="hide-zh">考試・中文</button><button data-exam-mode="hide-en">考試・英文</button></div></div><div class="track-switcher"><button data-track="foundation">補地基</button><button data-track="target12" class="is-active">高報酬</button><button data-track="target15">長尾挑戰</button></div>
   <div class="root-picker-wrap"><span class="picker-label">字根分類</span><div class="root-picker" data-root-picker></div></div><div class="root-level-wrap" data-root-level-wrap><span class="picker-label">級數</span><div class="root-level-picker" data-root-level-picker></div></div>
   <p class="study-status" data-study-status>正在整理今天的字……</p>
   <div class="card-grid study-grid" data-study-deck></div>
@@ -46,5 +46,5 @@
 </main>
 <dialog data-word-dialog class="word-dialog"><button class="dialog-close" data-dialog-close aria-label="關閉單字詳細資料">×</button><div data-dialog-content></div></dialog>
 <div class="toast" data-toast role="status" aria-live="polite"></div>
-<script type="module" src="./app.js?v=0.4.0"></script>
+<script type="module" src="./app.js?v=0.5.0"></script>
 </body></html>
