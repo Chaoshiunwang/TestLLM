@@ -10,6 +10,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "public" / "data" / "gsat-vocabulary-frequency.csv"
 DST = ROOT / "public" / "data" / "gsat-vocabulary-frequency-root.csv"
 QA_DST = ROOT / "public" / "data" / "root-analysis-qa.json"
+MANUAL_REVIEW_DST = ROOT / "public" / "data" / "root-manual-review.csv"
+DISCARD_DST = ROOT / "public" / "data" / "root-discarded-candidates.csv"
 
 CATEGORIES = ["感官動作","身體器官","手部動作","腳部動作","移動","展延或開合","各類動作","部分與全部"]
 
@@ -108,6 +110,32 @@ def is_high_confidence(word: str, variant: str, idx: int):
     has_structure = word == variant or bool(prefix) or bool(suffix)
     return len(variant) >= 3 and fully_explained and has_structure
 
+def review_disposition(word: str, variant: str, idx: int):
+    """Split ambiguous substring matches into useful manual review vs obvious coincidence."""
+    before, after, prefix, _, suffix, _ = affixes(word, variant, idx)
+    at_left = idx == 0
+    at_right = idx + len(variant) == len(word)
+    boundary = at_left or at_right
+    affix_signal = bool(prefix) or bool(suffix)
+
+    # Stronger-looking morphology: keep for a human to check.
+    if len(variant) >= 5:
+        return "MANUAL_REVIEW", "候選字根長度至少 5，值得人工確認"
+    if len(variant) == 4 and (boundary or affix_signal):
+        return "MANUAL_REVIEW", "4 字母候選且位於詞首/詞尾或伴隨已知詞綴"
+    if len(variant) == 3 and affix_signal and boundary:
+        return "MANUAL_REVIEW", "3 字母候選同時具有邊界與詞綴線索"
+    if len(variant) >= 3 and boundary and (len(before) <= 3 and len(after) <= 4):
+        return "MANUAL_REVIEW", "候選位於單字邊界，剩餘未解釋片段較短"
+
+    # Short/internal matches without morphology are overwhelmingly noisy.
+    if len(variant) <= 2:
+        return "DISCARD", "候選僅 1–2 字母，字母巧合風險過高"
+    if not boundary and not affix_signal:
+        return "DISCARD", "候選位於單字內部且無已知詞綴支持"
+    return "DISCARD", "目前缺乏足夠構詞證據"
+
+
 def best_match(word: str):
     w = word.lower().strip()
     hits = candidates(w)
@@ -117,9 +145,10 @@ def best_match(word: str):
     for score, cat, fam, v, meaning, i in hits:
         if is_high_confidence(w, v, i):
             return cat, fam, v, meaning, i, "HIGH"
-    # Keep only the strongest remaining match as a review candidate.
+    # Keep only the strongest remaining match, then decide whether it is worth human review.
     score, cat, fam, v, meaning, i = hits[0]
-    return cat, fam, v, meaning, i, "REVIEW"
+    disposition, reason = review_disposition(w, v, i)
+    return cat, fam, v, meaning, i, disposition, reason
 
 def analyze(word: str, zh: str):
     w = word.lower().strip()
@@ -131,10 +160,15 @@ def analyze(word: str, zh: str):
             "root_variant":"","root_meaning_zh":"","suffix":"","suffix_meaning_zh":"",
             "root_logic_zh":"未匹配到本版核心字根；不建議硬拆。",
             "memory_hint_zh":f"先直接連結核心義「{zh}」。",
-            "analysis_confidence":"UNMATCHED","root_candidate":"","root_candidate_meaning_zh":""
+            "analysis_confidence":"UNMATCHED","root_candidate":"","root_candidate_meaning_zh":"",
+            "review_disposition":"","review_reason":"","rejected_candidate":""
         }
 
-    cat, fam, var, meaning, idx, confidence = hit
+    if len(hit) == 6:
+        cat, fam, var, meaning, idx, confidence = hit
+        reason = ""
+    else:
+        cat, fam, var, meaning, idx, confidence, reason = hit
     before, after, p, pzh, s, szh = affixes(w, var, idx)
 
     if confidence == "HIGH":
@@ -152,18 +186,31 @@ def analyze(word: str, zh: str):
             "root_variant":var,"root_meaning_zh":meaning,"suffix":s,"suffix_meaning_zh":szh,
             "root_logic_zh":logic,
             "memory_hint_zh":f"把「{var}＝{meaning}」與「{zh}」建立連結。",
-            "analysis_confidence":"HIGH","root_candidate":"","root_candidate_meaning_zh":""
+            "analysis_confidence":"HIGH","root_candidate":"","root_candidate_meaning_zh":"",
+            "review_disposition":"","review_reason":"","rejected_candidate":""
         }
 
-    # REVIEW stays searchable as a candidate, but does not enter the 8-category filters.
+    if confidence == "MANUAL_REVIEW":
+        return {
+            "morphology_type":"ROOT_CANDIDATE_REVIEW","word_breakdown":word,
+            "prefix":"","prefix_meaning_zh":"","root_family":"","root_category":"",
+            "root_variant":"","root_meaning_zh":"","suffix":"","suffix_meaning_zh":"",
+            "root_logic_zh":f"候選詞素「{var}」具有部分構詞線索，但不足以自動確認；暫不列入正式字根分類。",
+            "memory_hint_zh":f"暫以單字義「{zh}」為主，待人工查可靠字源後再決定是否升級。",
+            "analysis_confidence":"MANUAL_REVIEW","root_candidate":f"{var} → {fam}",
+            "root_candidate_meaning_zh":meaning,
+            "review_disposition":"MANUAL_REVIEW","review_reason":reason,"rejected_candidate":""
+        }
+
     return {
-        "morphology_type":"ROOT_CANDIDATE_REVIEW","word_breakdown":word,
+        "morphology_type":"BASE_OR_UNMATCHED","word_breakdown":word,
         "prefix":"","prefix_meaning_zh":"","root_family":"","root_category":"",
         "root_variant":"","root_meaning_zh":"","suffix":"","suffix_meaning_zh":"",
-        "root_logic_zh":f"字面包含候選詞素「{var}」，但前後結構無法由目前字首／字尾規則完整解釋；暫不列入正式字根分類。",
-        "memory_hint_zh":f"暫以單字義「{zh}」為主，候選字根需再查可靠字源。",
-        "analysis_confidence":"REVIEW","root_candidate":f"{var} → {fam}",
-        "root_candidate_meaning_zh":meaning
+        "root_logic_zh":"偵測到的字母片段缺乏足夠構詞證據，視為字母巧合並排除。",
+        "memory_hint_zh":f"直接記憶核心義「{zh}」，不使用此候選字根。",
+        "analysis_confidence":"DISCARD","root_candidate":"","root_candidate_meaning_zh":"",
+        "review_disposition":"DISCARD","review_reason":reason,
+        "rejected_candidate":f"{var} → {fam}"
     }
 
 def main():
@@ -173,7 +220,8 @@ def main():
     extra = [
         "morphology_type","word_breakdown","prefix","prefix_meaning_zh","root_family","root_category",
         "root_variant","root_meaning_zh","suffix","suffix_meaning_zh","root_logic_zh","memory_hint_zh",
-        "analysis_confidence","root_candidate","root_candidate_meaning_zh"
+        "analysis_confidence","root_candidate","root_candidate_meaning_zh",
+        "review_disposition","review_reason","rejected_candidate"
     ]
     fields = list(rows[0].keys()) + extra
 
@@ -192,16 +240,33 @@ def main():
         if r["root_family"]:
             families[r["root_family"]] += 1
 
+    manual_rows = [r for r in rows if r["analysis_confidence"] == "MANUAL_REVIEW"]
+    discard_rows = [r for r in rows if r["analysis_confidence"] == "DISCARD"]
+
+    review_fields = ["headword","level","pos","zh_hint","count","years_seen","root_candidate","root_candidate_meaning_zh","review_reason"]
+    with MANUAL_REVIEW_DST.open("w", encoding="utf-8-sig", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=review_fields, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(manual_rows)
+
+    discard_fields = ["headword","level","pos","zh_hint","count","years_seen","rejected_candidate","review_reason"]
+    with DISCARD_DST.open("w", encoding="utf-8-sig", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=discard_fields, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(discard_rows)
+
     qa = {
         "records": len(rows),
         "confidence": dict(confidence),
         "classified_high": sum(categories.values()),
-        "review_candidates_excluded_from_filters": confidence.get("REVIEW", 0),
+        "manual_review_candidates": len(manual_rows),
+        "discarded_candidate_matches": len(discard_rows),
         "categories": {c: categories.get(c, 0) for c in CATEGORIES},
         "families": dict(sorted(families.items())),
         "rules": {
             "high": "root >= 3 letters and all text before/after root is empty or a recognized affix",
-            "review": "substring candidate retained for review but root_category/root_family left blank",
+            "manual_review": "candidate has boundary/length/affix evidence but is not strong enough for automatic classification",
+            "discard": "short/internal substring match without enough morphology; rejected as likely coincidence",
             "unmatched": "no root candidate"
         }
     }
