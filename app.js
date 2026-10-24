@@ -19,8 +19,8 @@ function scopeKey(){return JSON.stringify({mode,rootFamily,rootLevel})}
 function loadTodaySession(){try{return JSON.parse(localStorage.getItem("gsat-today-session-v2")||"null")}catch{return null}}
 function saveTodaySession(){if(todaySession)localStorage.setItem("gsat-today-session-v2",JSON.stringify(todaySession));else localStorage.removeItem("gsat-today-session-v2")}
 function newTodaySession(force=false){const key=scopeKey();const saved=loadTodaySession();if(!force&&saved&&saved.scope===key&&Array.isArray(saved.ids)&&saved.index<saved.ids.length){todaySession=saved;return}const pool=todayPool();todaySession={scope:key,ids:pool.slice(0,20).map(r=>r.id),index:0,completed:0,createdAt:Date.now()};saveTodaySession()}
-function ensureTodaySession(){if(!todaySession||todaySession.scope!==scopeKey()||todaySession.index>=todaySession.ids.length)newTodaySession()}
-function currentTodayWord(){ensureTodaySession();const id=todaySession.ids[todaySession.index];return words.find(r=>r.id===id)||null}
+function ensureTodaySession(){if(!todaySession||todaySession.scope!==scopeKey())newTodaySession()}
+function currentTodayWord(){ensureTodaySession();if(todaySession.index>=todaySession.ids.length)return null;const id=todaySession.ids[todaySession.index];return words.find(r=>r.id===id)||null}
 function resetTodaySession(){todaySession=null;saveTodaySession();newTodaySession(true)}
 function renderDeck(){updateListCounts();const grid=$("[data-study-deck]");const progressWrap=$("[data-round-progress-wrap]");const familyText=rootFamily==="all"?"全部字根":rootFamily;const levelText=rootLevel==="all"?"全部級數":`第 ${rootLevel} 級`;grid.classList.toggle("is-single",listView==="today");progressWrap.hidden=listView!=="today";
 if(listView==="today"){ensureTodaySession();const total=todaySession.ids.length;const done=Math.min(todaySession.completed,total);$("[data-round-progress]").textContent=`${done} / ${total||20}`;$("[data-round-progress-bar]").style.width=`${total?done/total*100:0}%`;$("[data-today-count]").textContent=total;
