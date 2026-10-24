@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#123f37">
 <title>學測英文單字＋字根地圖</title>
-<link rel="stylesheet" href="./styles.css?v=0.7.0">
+<link rel="stylesheet" href="./styles.css?v=0.8.0">
 </head>
 <body>
 <header class="site-header">
@@ -36,6 +36,7 @@
     <label class="wide"><span>搜尋</span><input data-query type="search" placeholder="abandon / dict / 說 / 移動"></label>
     <label><span>級別</span><select data-level><option value="all">全部</option><option value="1">第 1 級</option><option value="2">第 2 級</option><option value="3">第 3 級</option><option value="4">第 4 級</option><option value="5">第 5 級</option><option value="6">第 6 級</option><option value="other">詞表外／附錄</option></select></label>
     <label><span>字根分類</span><select data-root-category><option value="all">全部分類</option></select></label>
+    <label><span>字根</span><select data-root-filter><option value="all">全部字根</option></select></label>
     <label><span>優先度</span><select data-tier><option value="all">全部</option><option value="core">核心高頻</option><option value="priority">值得優先</option><option value="long_tail">長尾</option><option value="not_seen">未出現</option></select></label>
     <label><span>排序</span><select data-sort><option value="priority">建議優先</option><option value="frequency">出現次數</option><option value="level">級別</option><option value="alphabetical">A → Z</option></select></label>
   </div>
@@ -46,5 +47,5 @@
 </main>
 <dialog data-word-dialog class="word-dialog"><button class="dialog-close" data-dialog-close aria-label="關閉單字詳細資料">×</button><div data-dialog-content></div></dialog>
 <div class="toast" data-toast role="status" aria-live="polite"></div>
-<script type="module" src="./app.js?v=0.7.0"></script>
+<script type="module" src="./app.js?v=0.8.0"></script>
 </body></html>
