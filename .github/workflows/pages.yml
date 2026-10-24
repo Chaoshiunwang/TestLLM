@@ -30,6 +30,8 @@ jobs:
           cp public/data/root-analysis-qa.json _site/data/
           cp public/data/root-manual-review.csv _site/data/
           cp public/data/root-discarded-candidates.csv _site/data/
+          cp public/data/unmatched-review.csv _site/data/
+          cp public/data/unmatched-word-family.csv _site/data/
       - uses: actions/configure-pages@v5
         with:
           enablement: true
