@@ -20,13 +20,12 @@ jobs:
           python-version: "3.11"
       - name: Rebuild vocabulary data
         run: |
-          python -m scripts.build_data
-          python scripts/enrich_roots.py
+          python scripts/restore_merged.py
       - name: Assemble static site
         run: |
           mkdir -p _site/data
           cp index.html styles.css app.js _site/
-          cp public/data/gsat-vocabulary-frequency-root.csv _site/data/
+          cp public/data/gsat-vocabulary-merged-toeic-toefl-ielts-wordup.csv _site/data/
           cp public/data/root-analysis-qa.json _site/data/
           cp public/data/root-manual-review.csv _site/data/
           cp public/data/root-discarded-candidates.csv _site/data/
